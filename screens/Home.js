@@ -1,17 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+
+import Sidebar from '../components/Sidebar';
 
 const sob = [
   {
     header: 'Klossens dimension',
-    notice: ['Kraftigt material som kloss ochsom 6mm skrv inte spräcker. Hyvlat och riktat till 90*100mm kortare än naterialtes höjd. Bild 1'],
-    image: 'Bild1',
+    notice: ['Kraftigt material som kloss och som 6mm skruv inte spräcker.\nHyvlat och riktat till 90*100mm kortare än materialets höjd. Bild 1'],
+    image: 'Bild1.png',
     time: 15
   },
   {
     header: 'Vinkel',
     notice: ['Måttet 300*300\nMaterial:18-21 björkplywood.\nBild2'],
-    image: 'Bild2',
+    image: 'Bild2.png',
     time: 10
   },
   {
@@ -24,14 +26,13 @@ const sob = [
     notice: [
       '* Fullfölja limning i ett arbetsmoment.\n  Får inte avbrytas då glipor kan uppstå samt att vinkeln kan påverkas av stelnat lim.\n',
       '* Justera krysset i samband med limning och fastskruvning.\n',
-      '* Klossar och vinklar skall alltid limmas i hörn vid dessa typer av förnsteröppningar.'
+      '* Klossar och vinklar skall alltid limmas i hörn vid dessa typer av fönsteröppningar.'
     ],
     time: 40
   },
   {
     header: 'Kontroll',
     notice: ['Kontrollera höjd, bredd, djup och kryssmått.'],
-    image: '',
     time: 3
   },
 ];
@@ -69,25 +70,36 @@ export default class Home extends React.Component {
     //console.log(sob); sob[momentNr].notice.map((index) => <Text key={index} style={styles.text}>{sob[momentNr].notice[index]}</Text>)
 
     const { momentNr } = this.state;
-
-    console.log(sob[3].notice[2]);
+    if(sob[momentNr].image) {
+      const imgRef = '../assets/images/' + sob[momentNr].image;
+      console.log('imgRef',imgRef);
+    }
 
     return (
       <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          
-          <Text style={styles.text}>{sob[momentNr].header}</Text>
+        <View style={styles.sidebarContainer}>
+          <Sidebar sob={sob} active={this.state.momentNr}/>
         </View>
         <View style={styles.contentContainer}>
-          <Text style={styles.text}>{sob[momentNr].notice}</Text>  
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableHighlight style={styles.button} onPress={this.handleBack}>
-            <Text style={styles.text}>Back</Text>
-          </TouchableHighlight>
-          <TouchableHighlight style={styles.button} onPress={this.handleNext}>
-            <Text style={styles.text}>Next</Text>
-          </TouchableHighlight>
+          <View style={styles.headerContainer}>            
+            <Text style={styles.header}>{sob[momentNr].header}</Text>
+          </View>          
+          <View style={styles.noticeContainer}>
+            <Text style={styles.text}>{sob[momentNr].notice}</Text>
+            { sob[momentNr].image &&
+              <View style={{ position: 'absolute', alignSelf: 'center', zIndex: 20 }}>
+                <Image source={require('../assets/images/Bild1.png')} />
+              </View>
+            }
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableHighlight style={styles.button} onPress={this.handleBack}>
+              <Text style={styles.text}>Back</Text>
+            </TouchableHighlight>
+            <TouchableHighlight style={styles.button} onPress={this.handleNext}>
+              <Text style={styles.text}>Next</Text>
+            </TouchableHighlight>
+          </View>
         </View>
       </View>
     );
@@ -97,30 +109,44 @@ export default class Home extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'row',
     padding: 40,
-    backgroundColor: '#000',
-    alignItems: 'center',
+    backgroundColor: '#111',
+    //alignItems: 'center',
     justifyContent: 'center',
   },
   headerContainer: {
     flex: 0.2,
-    backgroundColor: '#000',
+    //backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
   },
   contentContainer: {
     flex: 0.7,
     padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     width: '100%',
-    backgroundColor: '#000',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    //backgroundColor: '#000',
+  },
+  sidebarContainer: {
+    flex: 0.3,
+  },
+  barText: {
+    //fontWeight: '100',
+    fontFamily: 'space-mono',
+    color: 'white',
+    fontSize: 30,
+  },
+  noticeContainer: {
+    flex: 0.7,
+    //backgroundColor: '#000',
   },
   buttonContainer: {
     width: 400,
     flex: 0.2,
     flexDirection: 'row',
-    backgroundColor: '#000',
+    //backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -130,8 +156,14 @@ const styles = StyleSheet.create({
   },
   notice: {
   },
-  text: {
+  header: {
+    fontFamily: 'space-mono',
     color: 'white',
     fontSize: 30,
+  },
+  text: {
+    fontFamily: 'space-mono',
+    color: 'white',
+    fontSize: 24,
   }
 });

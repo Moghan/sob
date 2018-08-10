@@ -3,12 +3,19 @@ import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import Home from './screens/Home';
+import { Provider } from 'react-redux'
+import { store } from './store/store';
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
   };
   
+  constructor(props){
+    super(props);
+    console.ignoredYellowBox = ['Setting a timer'];
+  }
+
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
       return (
@@ -20,7 +27,9 @@ export default class App extends React.Component {
       );
     } else {
       return (
-        <Stack />
+        <Provider store={store}>
+          <Stack />
+        </Provider>
       );
     }
   }

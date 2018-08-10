@@ -1,18 +1,20 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { connect } from 'react-redux';
 
 import Sidebar from '../components/Sidebar';
+import { watchPersonData } from '../store/store';
 
 const sob = [
   {
     header: 'Klossens dimension',
-    notice: ['Kraftigt material som kloss och som 6mm skruv inte spräcker.\nHyvlat och riktat till 90*100mm kortare än materialets höjd. Bild 1'],
+    notice: ['Kraftigt material som kloss och som 6mm skruv inte spräcker.\nHyvlat och riktat till 90*100mm kortare än materialets höjd.'],
     image: 'Bild1.png',
     time: 15
   },
   {
     header: 'Vinkel',
-    notice: ['Måttet 300*300\nMaterial:18-21 björkplywood.\nBild2'],
+    notice: ['Måttet 300*300\nMaterial:18-21 björkplywood.'],
     image: 'Bild2.png',
     time: 10
   },
@@ -37,10 +39,50 @@ const sob = [
   },
 ];
 
-export default class Home extends React.Component {
+export class Home extends React.Component {
 
   state = {
-    momentNr: 0
+    momentNr: 0,
+    imageUrl: 'default',
+    showImage: false,
+  }
+
+  constructor(props) {
+    super(props);
+    this.props.watchPersonData();
+    this.getImage();
+  }
+
+
+  getImage = () => {
+    const imageRef = this.props.imagesFolderRef.child('Bild1.png');
+    console.log('FULL', imageRef.fullPath);
+    // Get the download URL
+    imageRef.getDownloadURL().then((url) => {
+      // Insert url into an <img> tag to "download"
+      this.setState({imageUrl: url});
+    }).catch(function(error) {
+
+      // A full list of error codes is available at
+      // https://firebase.google.com/docs/storage/web/handle-errors
+      switch (error.code) {
+        case 'storage/object_not_found':
+          console.log('File does not exist');
+          break;
+
+        case 'storage/unauthorized':
+          console.log('User does not have permission to access the object');
+          break;
+
+        case 'storage/canceled':
+          console.log('User canceled the upload');
+          break;
+
+        case 'storage/unknown':
+          console.log('Unknown error occurred, inspect the server response');
+          break;
+      }
+    });
   }
 
   handleBack = () => {
@@ -65,16 +107,30 @@ export default class Home extends React.Component {
     })
   }
 
+  handlePressImage = () => {
+    console.log('press image');
+    this.setState((prevState) =>({
+      showImage: !prevState.showImage
+    }));
+  }
+
+  handlePressNotify = () => {
+    console.log('press notify');
+    this.setState((prevState) =>({
+      showImage: !prevState.showImage
+    }));
+  }
+
   render() {
-    //console.log(sob[this.state.momentNr].moment);
-    //console.log(sob); sob[momentNr].notice.map((index) => <Text key={index} style={styles.text}>{sob[momentNr].notice[index]}</Text>)
+    console.log(this.state.imageUrl);
+    
 
     const { momentNr } = this.state;
     if(sob[momentNr].image) {
       const imgRef = '../assets/images/' + sob[momentNr].image;
       console.log('imgRef',imgRef);
     }
-
+// <Image source={require('../assets/images/Bild1.png')} />
     return (
       <View style={styles.container}>
         <View style={styles.sidebarContainer}>
@@ -85,13 +141,13 @@ export default class Home extends React.Component {
             <Text style={styles.header}>{sob[momentNr].header}</Text>
           </View>          
           <View style={styles.noticeContainer}>
-            <Text style={styles.text}>{sob[momentNr].notice}</Text>
-            { sob[momentNr].image &&
-              <View style={{ position: 'absolute', alignSelf: 'center', zIndex: 20 }}>
-                <Image source={require('../assets/images/Bild1.png')} />
-              </View>
-            }
+            <TouchableHighlight style={styles.noticeTouchable} onPress={this.handlePressNotify}>
+              <Text style={styles.text}>{sob[momentNr].notice}</Text>
+              
+            </TouchableHighlight>
+            <Text style={[styles.imageMessage, {alignSelf: 'center'}]}>Bild. Tryck på texten för att visa.</Text>
           </View>
+          
           <View style={styles.buttonContainer}>
             <TouchableHighlight style={styles.button} onPress={this.handleBack}>
               <Text style={styles.text}>Back</Text>
@@ -101,10 +157,33 @@ export default class Home extends React.Component {
             </TouchableHighlight>
           </View>
         </View>
+        { this.state.showImage && sob[momentNr].image &&
+              <TouchableHighlight onPress={this.handlePressImage} style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: 416*2, height: 338*2, borderColor: 'white', borderWidth: 2  }}>
+                <View onPress={this.handlePressImage}  style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: '100%', height: '100%', borderColor: 'white', borderWidth: 2  }}>
+                  <Image style={{width: '100%', height: '100%', borderColor: 'white', borderWidth: 2, zIndex: 25 }} source={{uri: this.state.imageUrl}} />
+                </View>
+              </TouchableHighlight>
+            }
       </View>
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    imagesFolderRef: state.storageRef.child('images'),
+    personData: state.personData
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    watchPersonData: () => dispatch(watchPersonData())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -140,7 +219,15 @@ const styles = StyleSheet.create({
   },
   noticeContainer: {
     flex: 0.7,
-    //backgroundColor: '#000',
+    justifyContent: 'space-between',
+    //borderWidth: 1,
+    //borderColor: 'white',
+        
+    //backgroundColor: '#333',
+  },
+  noticeTouchable: {
+    width: '100%',
+    height: '90%',
   },
   buttonContainer: {
     width: 400,
@@ -165,5 +252,10 @@ const styles = StyleSheet.create({
     fontFamily: 'space-mono',
     color: 'white',
     fontSize: 24,
+  },
+  imageMessage: {
+    fontFamily: 'space-mono',
+    color: 'white',
+    fontSize: 21,
   }
 });

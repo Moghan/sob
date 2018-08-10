@@ -6,7 +6,6 @@ export default class Sidebar extends React.Component {
     return (
       <ScrollView style={styles.container}>
       { this.props.sob.map((item, index) => {
-        console.log(index);
         return (
         this.props.active === index ?
           <View key={index} style={styles.activeItem}>

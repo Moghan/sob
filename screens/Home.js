@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import Sidebar from '../components/Sidebar';
 import { watchPersonData } from '../store/store';
+import CustomImage from '../components/CustomImage';
 
 const sob = [
   {
@@ -43,46 +44,12 @@ export class Home extends React.Component {
 
   state = {
     momentNr: 0,
-    imageUrl: 'default',
     showImage: false,
   }
 
   constructor(props) {
     super(props);
     this.props.watchPersonData();
-    this.getImage();
-  }
-
-
-  getImage = () => {
-    const imageRef = this.props.imagesFolderRef.child('Bild1.png');
-    console.log('FULL', imageRef.fullPath);
-    // Get the download URL
-    imageRef.getDownloadURL().then((url) => {
-      // Insert url into an <img> tag to "download"
-      this.setState({imageUrl: url});
-    }).catch(function(error) {
-
-      // A full list of error codes is available at
-      // https://firebase.google.com/docs/storage/web/handle-errors
-      switch (error.code) {
-        case 'storage/object_not_found':
-          console.log('File does not exist');
-          break;
-
-        case 'storage/unauthorized':
-          console.log('User does not have permission to access the object');
-          break;
-
-        case 'storage/canceled':
-          console.log('User canceled the upload');
-          break;
-
-        case 'storage/unknown':
-          console.log('Unknown error occurred, inspect the server response');
-          break;
-      }
-    });
   }
 
   handleBack = () => {
@@ -108,29 +75,20 @@ export class Home extends React.Component {
   }
 
   handlePressImage = () => {
-    console.log('press image');
     this.setState((prevState) =>({
       showImage: !prevState.showImage
     }));
   }
 
   handlePressNotify = () => {
-    console.log('press notify');
     this.setState((prevState) =>({
       showImage: !prevState.showImage
     }));
   }
 
   render() {
-    console.log(this.state.imageUrl);
-    
-
     const { momentNr } = this.state;
-    if(sob[momentNr].image) {
-      const imgRef = '../assets/images/' + sob[momentNr].image;
-      console.log('imgRef',imgRef);
-    }
-// <Image source={require('../assets/images/Bild1.png')} />
+
     return (
       <View style={styles.container}>
         <View style={styles.sidebarContainer}>
@@ -159,8 +117,8 @@ export class Home extends React.Component {
         </View>
         { this.state.showImage && sob[momentNr].image &&
               <TouchableHighlight onPress={this.handlePressImage} style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: 416*2, height: 338*2, borderColor: 'white', borderWidth: 2  }}>
-                <View onPress={this.handlePressImage}  style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: '100%', height: '100%', borderColor: 'white', borderWidth: 2  }}>
-                  <Image style={{width: '100%', height: '100%', borderColor: 'white', borderWidth: 2, zIndex: 25 }} source={{uri: this.state.imageUrl}} />
+                <View onPress={this.handlePressImage}  style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: '100%', height: '100%' }}>
+                  <CustomImage style={{width: '100%', height: '100%' }} imageName={sob[momentNr].image} />
                 </View>
               </TouchableHighlight>
             }
@@ -171,7 +129,6 @@ export class Home extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    imagesFolderRef: state.storageRef.child('images'),
     personData: state.personData
   }
 }

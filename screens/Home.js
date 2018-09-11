@@ -9,13 +9,13 @@ import CustomImage from '../components/CustomImage';
 const sob = [
   {
     header: 'Klossens dimension',
-    notice: ['Kraftigt material som kloss och som 6mm skruv inte spräcker.\nHyvlat och riktat till 90*100mm kortare än materialets höjd.'],
+    notice: ['Kraftigt material som kloss och som 6mm skruv inte spräcker.', 'Hyvlat och riktat till 90*100mm kortare än materialets höjd.'],
     image: 'Bild1.png',
     time: 15
   },
   {
     header: 'Vinkel',
-    notice: ['Måttet 300*300\nMaterial:18-21 björkplywood.'],
+    notice: ['Måttet 300*300', 'Material:18-21 björkplywood.'],
     image: 'Bild2.png',
     time: 10
   },
@@ -25,11 +25,11 @@ const sob = [
     time: 15
   },
   {
-    header: 'Limning av vinklar och klossar',
+    header: 'Limning vinklar & klossar',
     notice: [
-      '* Fullfölja limning i ett arbetsmoment.\n  Får inte avbrytas då glipor kan uppstå samt att vinkeln kan påverkas av stelnat lim.\n',
-      '* Justera krysset i samband med limning och fastskruvning.\n',
-      '* Klossar och vinklar skall alltid limmas i hörn vid dessa typer av fönsteröppningar.'
+      'Fullfölja limning i ett arbetsmoment.\n(Får inte avbrytas då glipor kan uppstå samt att vinkeln kan påverkas av stelnat lim.)',
+      'Justera krysset i samband med limning och fastskruvning.',
+      'Klossar och vinklar skall alltid limmas i hörn vid dessa typer av fönsteröppningar.'
     ],
     time: 40
   },
@@ -63,6 +63,11 @@ export class Home extends React.Component {
     })
   }
 
+  handlePressSidebarItem = (item) => {
+    console.log("handle press sidebar");
+    this.setState({momentNr: item});
+  }
+
   handleNext = () => {
     this.setState((prevState) => {
       if (prevState.momentNr < sob.length -1 ) {
@@ -92,31 +97,35 @@ export class Home extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.sidebarContainer}>
-          <Sidebar sob={sob} active={this.state.momentNr}/>
+          <Sidebar sob={sob} active={this.state.momentNr} handlePressSidebarItem={this.handlePressSidebarItem} />
         </View>
         <View style={styles.contentContainer}>
-          <View style={styles.headerContainer}>            
-            <Text style={styles.header}>{sob[momentNr].header}</Text>
-          </View>          
           <View style={styles.noticeContainer}>
-            <TouchableHighlight style={styles.noticeTouchable} onPress={this.handlePressNotify}>
-              <Text style={styles.text}>{sob[momentNr].notice}</Text>
+            <TouchableHighlight onPress={this.handlePressNotify}>
+              <View style={styles.noticeTouchable}>
+              { sob[momentNr].notice.map((item, index) =>
+                  <Text key={index} style={styles.noticeItem}>{item}</Text>
+              )}
+                <View style={{flex: 1}} />
+                { sob[momentNr].image &&
+                  <Text style={[styles.imageMessage, {alignSelf: 'center'}]}>SE BILD</Text>
+                }                
+              </View>
               
-            </TouchableHighlight>
-            <Text style={[styles.imageMessage, {alignSelf: 'center'}]}>Bild. Tryck på texten för att visa.</Text>
+            </TouchableHighlight>            
           </View>
           
           <View style={styles.buttonContainer}>
             <TouchableHighlight style={styles.button} onPress={this.handleBack}>
-              <Text style={styles.text}>Back</Text>
+              <Text style={styles.buttonText}>Back</Text>
             </TouchableHighlight>
             <TouchableHighlight style={styles.button} onPress={this.handleNext}>
-              <Text style={styles.text}>Next</Text>
+              <Text style={styles.buttonText}>Next</Text>
             </TouchableHighlight>
           </View>
         </View>
         { this.state.showImage && sob[momentNr].image &&
-              <TouchableHighlight onPress={this.handlePressImage} style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: 416*2, height: 338*2, borderColor: 'white', borderWidth: 2  }}>
+              <TouchableHighlight onPress={this.handlePressImage} style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: 416*1.3, height: 338*1.3, borderColor: 'white', borderWidth: 2  }}>
                 <View onPress={this.handlePressImage}  style={{ position: 'absolute', alignSelf: 'center', zIndex: 20, width: '100%', height: '100%' }}>
                   <CustomImage style={{width: '100%', height: '100%' }} imageName={sob[momentNr].image} />
                 </View>
@@ -155,7 +164,7 @@ const styles = StyleSheet.create({
     flex: 0.2,
     //backgroundColor: '#000',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   contentContainer: {
     flex: 0.7,
@@ -175,7 +184,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   noticeContainer: {
-    flex: 0.7,
+    flex: 0.8,
     justifyContent: 'space-between',
     //borderWidth: 1,
     //borderColor: 'white',
@@ -183,8 +192,13 @@ const styles = StyleSheet.create({
     //backgroundColor: '#333',
   },
   noticeTouchable: {
-    width: '100%',
-    height: '90%',
+    flex: 1,
+  },
+  noticeItem: {
+    paddingBottom: 10,
+    fontFamily: 'space-mono',
+    color: 'white',
+    fontSize: 16,
   },
   buttonContainer: {
     width: 400,
@@ -195,6 +209,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button: {
+    padding: 15,
+  },
+  buttonText: {
+    fontSize: 20,
+    color: 'white',
   },
   moment: {
   },
@@ -203,16 +222,16 @@ const styles = StyleSheet.create({
   header: {
     fontFamily: 'space-mono',
     color: 'white',
-    fontSize: 30,
+    fontSize: 20,
   },
   text: {
     fontFamily: 'space-mono',
     color: 'white',
-    fontSize: 24,
+    fontSize: 16,
   },
   imageMessage: {
     fontFamily: 'space-mono',
     color: 'white',
-    fontSize: 21,
+    fontSize: 16,
   }
 });

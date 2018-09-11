@@ -2,6 +2,9 @@ import React from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableHighlight } from 'react-native';
 
 export default class Sidebar extends React.Component {
+
+  
+
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -12,9 +15,9 @@ export default class Sidebar extends React.Component {
             <Text style={styles.text}>{item.header}</Text>
           </View>
         :
-        <View key={index} style={styles.item}>
+        <TouchableHighlight key={index} onPress={() => this.props.handlePressSidebarItem(index)} style={styles.item}>
           <Text style={styles.text}>{item.header}</Text>
-        </View>
+        </TouchableHighlight>
         )
       })}
       </ScrollView>
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'space-mono',
     color: 'white',
-    fontSize: 20,
+    fontSize: 16,
   },
   activeText: {
     fontFamily: 'space-mono',
